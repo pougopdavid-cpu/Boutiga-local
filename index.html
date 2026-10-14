@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BoutigaLocal - Le Commerce de Proximité au Cameroun</title>
+    <!-- Tailwind CSS pour un design moderne et rapide -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body class="bg-gray-50 text-gray-800 font-sans">
+
+    <!-- En-tête -->
+    <header class="bg-emerald-600 text-shadow shadow-md sticky top-0 z-50">
+        <div class="max-w-6xl mx-auto px-4 py-4 flex justify-between items-center">
+            <div class="flex items-center space-x-2">
+                <i class="fa-solid fa-store text-white text-2xl"></i>
+                <span class="text-xl font-bold text-white">Boutiga<span class="text-amber-300">Local</span></span>
+            </div>
+            <div class="text-sm text-emerald-100 hidden md:block">
+                <i class="fa-solid fa-location-dot"></i> Douala, Yaoundé, Bafoussam...
+            </div>
+            <button onclick="openAddModal()" class="bg-amber-400 hover:bg-amber-500 text-emerald-950 font-semibold px-4 py-2 rounded-lg shadow transition text-sm">
+                <i class="fa-solid fa-plus mr-1"></i> Publier mon commerce
+            </button>
+        </div>
+    </header>
+
+    <!-- Section Héro -->
+    <section class="bg-gradient-to-r from-emerald-700 to-teal-800 text-white py-12 px-4 text-center">
+        <div class="max-w-3xl mx-auto">
+            <h1 class="text-3xl md:text-4xl font-extrabold mb-4">Trouvez les meilleurs commerces et artisans près de chez vous</h1>
+            <p class="text-emerald-100 mb-8 text-sm md:text-base">Soutenez le commerce de proximité. Commandez ou contactez directement les boutiques de votre quartier via WhatsApp.</p>
+            
+            <!-- Barre de recherche et filtres -->
+            <div class="bg-white p-3 rounded-xl shadow-lg flex flex-col md:flex-row gap-3">
+                <div class="flex-1 flex items-center bg-gray-100 rounded-lg px-3 py-2">
+                    <i class="fa-solid fa-magnifying-glass text-gray-400 mr-2"></i>
+                    <input type="text" id="searchInput" placeholder="Que recherchez-vous ? (chaussures, couturier, gaz...)" class="bg-transparent w-full focus:outline-none text-sm text-gray-800" oninput="filterListings()">
+                </div>
+                <div class="w-full md:w-48">
+                    <select id="cityFilter" class="bg-gray-100 rounded-lg px-3 py-2 w-full focus:outline-none text-sm text-gray-800" onchange="filterListings()">
+                        <option value="">Toutes les villes</option>
+                        <option value="Douala">Douala</option>
+                        <option value="Yaoundé">Yaoundé</option>
+                        <option value="Bafoussam">Bafoussam</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Liste des Commerces -->
+    <main class="max-w-6xl mx-auto px-4 py-10">
+        <div class="flex justify-between items-center mb-6">
+            <h2 class="text-xl font-bold text-gray-800">Commerces et services populaires</h2>
+            <span id="counter" class="text-sm text-gray-500 font-medium"></span>
+        </div>
+
+        <div id="listingsContainer" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <!-- Les cartes seront injectées dynamiquement ici -->
+        </div>
+    </main>
+
+    <!-- Modal d'ajout de commerce -->
+    <div id="addModal" class="fixed inset-0 bg-black bg-opacity-50 hidden justify-center items-center z-50 p-4">
+        <div class="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl relative">
+            <button onclick="closeAddModal()" class="absolute top-4 right-4 text-gray-400 hover:text-gray-600 text-lg">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+            <h3 class="text-lg font-bold text-gray-800 mb-4">Ajouter votre commerce ou service</h3>
+            <form id="addForm" onsubmit="addListing(event)" class="space-y-4">
+                <div>
+                    <label class="block text-xs font-semibold text-gray-600 mb-1">Nom du commerce / Activité</label>
+                    <input type="text" id="newName" required class="w-full bg-gray-100 border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-emerald-500" placeholder="Ex: Boutique Élégance">
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-gray-600 mb-1">Catégorie</label>
+                    <select id="newCategory" class="w-full bg-gray-100 border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-emerald-500">
+                        <option value="Mode & Vêtements">Mode & Vêtements</option>
+                        <option value="Alimentation & Vivres">Alimentation & Vivres</option>
+                        <option value="Services & Artisanat">Services & Artisanat</option>
+                        <option value="High-Tech & Divers">High-Tech & Divers</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-gray-600 mb-1">Ville / Quartier</label>
+                    <input type="text" id="newLocation" required class="w-full bg-gray-100 border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-emerald-500" placeholder="Ex: Douala (Akwa)">
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-gray-600 mb-1">Description courte</label>
+                    <textarea id="newDesc" required rows="2" class="w-full bg-gray-100 border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-emerald-500" placeholder="Ce que vous vendez..."></textarea>
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-gray-600 mb-1">Numéro WhatsApp (avec indicatif, ex: 2376XXXXXXXX)</label>
+                    <input type="text" id="newPhone" required class="w-full bg-gray-100 border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-emerald-500" placeholder="237600000000">
+                </div>
+                <button type="submit" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-semibold py-2.5 rounded-lg shadow transition text-sm">
+                    Publier gratuitement
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Pied de page -->
+    <footer class="bg-gray-900 text-gray-400 py-8 text-center text-sm border-t border-gray-800">
+        <p>&copy; 2026 BoutigaLocal - Propulsé pour dynamiser le commerce de proximité.</p>
+    </footer>
+
+    <!-- Script JavaScript interactif -->
+    <script>
+        // Données initiales d'exemple
+        let listings = [
+            {
+                name: "Boutique Mode Express",
+                category: "Mode & Vêtements",
+                location: "Douala (Akwa)",
+                desc: "Vente de prêt-à-porter homme et femme, chaussures et accessoires tendance.",
+                phone: "237600000001"
+            },
+            {
+                name: "Chez Maman Marie - Vivres Frais",
+                category: "Alimentation & Vivres",
+                location: "Yaoundé (Mvog-Mbi)",
+                desc: "Plantains, arachides, légumes frais et épices locales livrés en gros et détail.",
+                phone: "237600000002"
+            },
+            {
+                name: "Atelier Couture & Retouche Pro",
+                category: "Services & Artisanat",
+                location: "Bafoussam (Commercial)",
+                desc: "Confection sur mesure de tenues traditionnelles et modernes, retouches rapides.",
+                phone: "237600000003"
+            }
+        ];
+
+        function renderListings(data) {
+            const container = document.getElementById('listingsContainer');
+            document.getElementById('counter').innerText = `${data.length} commerce(s) trouvé(s)`;
+            
+            if (data.length === 0) {
+                container.innerHTML = `<div class="col-span-full text-center py-10 text-gray-500">Aucun commerce trouvé pour cette recherche.</div>`;
+                return;
+            }
+
+            container.innerHTML = data.map(item => `
+                <div class="bg-white rounded-xl shadow-sm hover:shadow-md transition border border-gray-100 p-5 flex flex-col justify-between">
+                    <div>
+                        <div class="flex justify-between items-start mb-3">
+                            <span class="text-xs font-semibold bg-emerald-50 text-emerald-700 px-2.5 py-1 rounded-full">${item.category}</span>
+                            <span class="text-xs text-gray-500"><i class="fa-solid fa-location-dot text-rose-500 mr-1"></i>${item.location}</span>
+                        </div>
+                        <h3 class="font-bold text-gray-800 text-base mb-1">${item.name}</h3>
+                        <p class="text-gray-600 text-xs mb-4 leading-relaxed">${item.desc}</p>
+                    </div>
+                    <a href="https://wa.me/${item.phone}?text=Bonjour,%20je%20vous%20contacte%20via%20BoutigaLocal%20concernant%20vos%20produits." target="_blank" class="bg-emerald-50 hover:bg-emerald-600 hover:text-white text-emerald-700 border border-emerald-200 text-xs font-semibold py-2 px-3 rounded-lg flex items-center justify-center transition">
+                        <i class="fa-brands fa-whatsapp text-base mr-2 text-emerald-600 group-hover:text-white"></i> Commander / Discuter
+                    </a>
+                </div>
+            `).join('');
+        }
+
+        function filterListings() {
+            const search = document.getElementById('searchInput').value.toLowerCase();
+            const city = document.getElementById('cityFilter').value;
+
+            const filtered = listings.filter(item => {
+                const matchesSearch = item.name.toLowerCase().includes(search) || item.desc.toLowerCase().includes(search) || item.category.toLowerCase().includes(search);
+                const matchesCity = city === "" || item.location.toLowerCase().includes(city.toLowerCase());
+                return matchesSearch && matchesCity;
+            });
+
+            renderListings(filtered);
+        }
+
+        function openAddModal() {
+            document.getElementById('addModal').classList.remove('hidden');
+            document.getElementById('addModal').classList.add('flex');
+        }
+
+        function closeAddModal() {
+            document.getElementById('addModal').classList.add('hidden');
+            document.getElementById('addModal').classList.remove('flex');
+        }
+
+        function addListing(e) {
+            e.preventDefault();
+            const newEntry = {
+                name: document.getElementById('newName').value,
+                category: document.getElementById('newCategory').value,
+                location: document.getElementById('newLocation').value,
+                desc: document.getElementById('newDesc').value,
+                phone: document.getElementById('newPhone').value
+            };
+
+            listings.unshift(newEntry);
+            filterListings();
+            document.getElementById('addForm').reset();
+            closeAddModal();
+        }
+
+        // Affichage initial au chargement de la page
+        renderListings(listings);
+    </script>
+</body>
+</html>
